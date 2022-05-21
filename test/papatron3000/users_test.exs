@@ -34,12 +34,24 @@ defmodule Papatron3000.UsersTest do
       assert Users.has_role?(user, :member)
     end
 
-    test "adding an invalid role fails" do
+    test "adding the same role multple times fails" do
       {:ok, user} = user_fixture(%{first_name: "Bruce", last_name: "Wayne"})
 
-      {:error, changeset} = Users.add_role(user, :foobar)
+      refute Users.has_role?(user, :pal)
+      Users.add_role(user, :pal)
+      assert Users.has_role?(user, :pal)
 
-      assert "is invalid" in errors_on(changeset).type
+      assert {:error, "This role is already set."} = Users.add_role(user, :pal)
+
+      assert Users.has_role?(user, :pal)
+    end
+
+    test "adding an invalid role raises" do
+      {:ok, user} = user_fixture(%{first_name: "Bruce", last_name: "Wayne"})
+
+      assert_raise Ecto.Query.CastError, fn ->
+        Users.add_role(user, :foobar)
+      end
     end
 
     test "querying for an invalid role raises" do

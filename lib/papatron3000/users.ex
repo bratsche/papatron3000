@@ -32,8 +32,12 @@ defmodule Papatron3000.Users do
   Adds the specified role.
   """
   def add_role(%User{} = user, role_type) do
-    Ecto.build_assoc(user, :roles)
-    |> Role.changeset(%{type: role_type})
-    |> Repo.insert()
+    if has_role?(user, role_type) do
+      {:error, "This role is already set."}
+    else
+      Ecto.build_assoc(user, :roles)
+      |> Role.changeset(%{type: role_type})
+      |> Repo.insert()
+    end
   end
 end
