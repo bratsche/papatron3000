@@ -23,6 +23,13 @@ defmodule Papatron3000.UsersTest do
     end
   end
 
+  describe "users have a default balance" do
+    test "that the default balance is set" do
+      {:ok, user} = user_fixture(%{first_name: "Bruce", last_name: "Wayne"})
+      assert user.balance == 60
+    end
+  end
+
   describe "user roles" do
     test "adding a valid role" do
       {:ok, user} = user_fixture(%{first_name: "Bruce", last_name: "Wayne"})

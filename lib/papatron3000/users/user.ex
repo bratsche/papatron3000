@@ -6,7 +6,7 @@ defmodule Papatron3000.Users.User do
     field :first_name, :string
     field :last_name,  :string
     field :email,      :string
-    field :balance,    :integer
+    field :balance,    :integer, default: 60
 
     has_many :roles, Papatron3000.Users.Role
 
