@@ -20,6 +20,13 @@ defmodule Papatron3000.VisitsTest do
 
       assert {:error, "Not a member"} = Visits.request_visit(user, %{requested_date: ~D[2022-06-01], minutes: 30})
     end
+
+    test "fails when member doesn't have enough balance for the requested amount of time" do
+      {:ok, user} = user_fixture(%{balance: 20})
+      Users.add_role(user, :member)
+
+      assert {:error, "Insufficient balance"} = Visits.request_visit(user, %{requested_date: ~D[2022-12-01], minutes: 30})
+    end
   end
 
   describe "listing potential upcoming visits for a pal" do
