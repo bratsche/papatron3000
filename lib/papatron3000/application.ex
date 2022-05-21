@@ -10,6 +10,7 @@ defmodule Papatron3000.Application do
     children = [
       # Starts a worker by calling: Papatron3000.Worker.start_link(arg)
       # {Papatron3000.Worker, arg}
+      Papatron3000.Repo
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
