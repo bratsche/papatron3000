@@ -6,3 +6,5 @@ config :papatron3000, Papatron3000.Repo,
   password: "postgres",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :logger, level: :warn
