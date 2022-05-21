@@ -1,15 +1,8 @@
 defmodule Papatron3000.UsersTest do
   use Papatron3000.DataCase
+  import Papatron3000.Fixtures
   alias Papatron3000.Users
   alias Papatron3000.Users.User
-
-  def user_fixture(attrs \\ %{}) do
-    email = "somebody#{System.unique_integer()}@somewhere.com"
-
-    attrs
-    |> Enum.into(%{first_name: "Bruce", last_name: "Wayne", email: email})
-    |> Users.create_user()
-  end
 
   describe "getting a user by email address" do
     test "fetches a user if it exists" do

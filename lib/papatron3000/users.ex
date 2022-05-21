@@ -25,7 +25,8 @@ defmodule Papatron3000.Users do
       where: r.user_id == ^user.id,
       where: r.type == ^role_type
     )
-    |> Repo.all() != []
+    |> Repo.all()
+    |> Enum.any?()
   end
 
   @doc """

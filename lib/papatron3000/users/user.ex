@@ -8,7 +8,8 @@ defmodule Papatron3000.Users.User do
     field :email,      :string
     field :balance,    :integer, default: 60
 
-    has_many :roles, Papatron3000.Users.Role
+    has_many :roles,  Papatron3000.Users.Role
+    has_many :visits, Papatron3000.Visits.Visit
 
     timestamps()
   end

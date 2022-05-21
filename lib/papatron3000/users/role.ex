@@ -14,6 +14,6 @@ defmodule Papatron3000.Users.Role do
   def changeset(role, attrs) do
     role
     |> cast(attrs, [:type])
-    |> validate_required([:type])
+    |> validate_required([:type, :user_id])
   end
 end
