@@ -7,13 +7,13 @@ defmodule Papatron3000.UsersTest do
     email = "somebody#{System.unique_integer()}@somewhere.com"
 
     attrs
-    |> Enum.into(%{email: email})
+    |> Enum.into(%{first_name: "Bruce", last_name: "Wayne", email: email})
     |> Users.create_user()
   end
 
   describe "getting a user by email address" do
     test "fetches a user if it exists" do
-      {:ok, %User{id: id, email: email}} = user_fixture(%{first_name: "Bruce", last_name: "Wayne"})
+      {:ok, %User{id: id, email: email}} = user_fixture()
 
       assert %User{id: ^id} = Users.get_user_by_email(email)
     end
@@ -25,14 +25,14 @@ defmodule Papatron3000.UsersTest do
 
   describe "users have a default balance" do
     test "that the default balance is set" do
-      {:ok, user} = user_fixture(%{first_name: "Bruce", last_name: "Wayne"})
+      {:ok, user} = user_fixture()
       assert user.balance == 60
     end
   end
 
   describe "user roles" do
     test "adding a valid role" do
-      {:ok, user} = user_fixture(%{first_name: "Bruce", last_name: "Wayne"})
+      {:ok, user} = user_fixture()
 
       refute Users.has_role?(user, :member)
 
@@ -42,7 +42,7 @@ defmodule Papatron3000.UsersTest do
     end
 
     test "adding the same role multple times fails" do
-      {:ok, user} = user_fixture(%{first_name: "Bruce", last_name: "Wayne"})
+      {:ok, user} = user_fixture()
 
       refute Users.has_role?(user, :pal)
       Users.add_role(user, :pal)
@@ -54,7 +54,7 @@ defmodule Papatron3000.UsersTest do
     end
 
     test "adding an invalid role raises" do
-      {:ok, user} = user_fixture(%{first_name: "Bruce", last_name: "Wayne"})
+      {:ok, user} = user_fixture()
 
       assert_raise Ecto.Query.CastError, fn ->
         Users.add_role(user, :foobar)
@@ -62,7 +62,7 @@ defmodule Papatron3000.UsersTest do
     end
 
     test "querying for an invalid role raises" do
-      {:ok, user} = user_fixture(%{first_name: "Bruce", last_name: "Wayne"})
+      {:ok, user} = user_fixture()
 
       assert_raise Ecto.Query.CastError, fn ->
         Users.has_role?(user, :foobar)
