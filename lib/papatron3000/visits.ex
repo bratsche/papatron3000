@@ -33,6 +33,18 @@ defmodule Papatron3000.Visits do
   end
 
   @doc """
+  Has this visit already been fulfilled?
+  """
+  def is_fulfilled?(%Visit{} = visit) do
+    from(
+      t in Transaction,
+      where: t.visit_id == ^visit.id
+    )
+    |> Repo.all()
+    |> Enum.any?()
+  end
+
+  @doc """
   This is used by pals to look for visits to do. Users must have the
   `:pal` role in order to list visits here. This will also not list
   visits in the past.
@@ -45,7 +57,10 @@ defmodule Papatron3000.Visits do
         from(
           v in Visit,
           where: v.user_id != ^pal.id,
-          where: v.requested_date >= ^today
+          where: v.requested_date >= ^today,
+          left_join: t in Transaction,
+          on: t.visit_id == v.id,
+          where: is_nil(t.visit_id) and not is_nil(v.id)
         )
         |> Repo.all()
 

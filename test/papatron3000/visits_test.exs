@@ -65,10 +65,6 @@ defmodule Papatron3000.VisitsTest do
       assert Visits.get_potential_visits_for_pal(user) == []
     end
 
-    test "fulfilled visits will not be shown in the list" do
-      # TODO
-    end
-
     test "unfulfilled visits in the past will not be shown in the list" do
       # TODO
     end
@@ -82,10 +78,20 @@ defmodule Papatron3000.VisitsTest do
       {:ok, visit} = Visits.request_visit(member, %{requested_date: ~D[2022-12-01], minutes: 30})
       visit = visit |> Repo.preload(:user)
 
+      # Check that the pal has the visit in their list
+      assert Visits.get_potential_visits_for_pal(pal) != []
+
+      refute Visits.is_fulfilled?(visit)
+
       {:ok, %{member: member, pal: pal, transaction: transaction}} = Visits.perform_visit(pal, visit)
       assert transaction != nil
       assert member.balance == 30
       assert pal.balance == 85
+
+      assert Visits.is_fulfilled?(visit)
+
+      # Check that the visit no longer shows up in the pal's list since it's fulfilled.
+      assert Visits.get_potential_visits_for_pal(pal) == []
     end
   end
 
