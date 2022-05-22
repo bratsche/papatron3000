@@ -66,7 +66,14 @@ defmodule Papatron3000.VisitsTest do
     end
 
     test "unfulfilled visits in the past will not be shown in the list" do
-      # TODO
+      {:ok, member} = user_fixture()
+      Users.add_role(member, :member)
+      {:ok, pal} = user_fixture()
+      Users.add_role(pal, :pal)
+
+      {:ok, _visit} = Visits.request_visit(member, %{requested_date: ~D[2020-12-01], minutes: 30})
+
+      assert Visits.get_potential_visits_for_pal(pal) == []
     end
 
     test "performing a visit will create a transaction and alter member's and pal's balances" do
