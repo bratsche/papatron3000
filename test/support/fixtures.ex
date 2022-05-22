@@ -8,4 +8,18 @@ defmodule Papatron3000.Fixtures do
     |> Enum.into(%{first_name: "Bruce", last_name: "Wayne", email: email})
     |> Users.create_user()
   end
+
+  def pal_user_fixture(attrs \\ %{}) do
+    {:ok, user} = user_fixture(attrs)
+    Users.add_role(user, :pal)
+
+    {:ok, user}
+  end
+
+  def member_user_fixture(attrs \\ %{}) do
+    {:ok, user} = user_fixture(attrs)
+    Users.add_role(user, :member)
+
+    {:ok, user}
+  end
 end

@@ -7,9 +7,8 @@ defmodule Papatron3000.VisitsTest do
 
   describe "requesting a visit" do
     test "succeeds when the user is a member" do
-      {:ok, user} = user_fixture()
+      {:ok, user} = member_user_fixture()
 
-      Users.add_role(user, :member)
       user = Users.get_user_by_email(user.email)
 
       assert {:ok, %Visit{}} = Visits.request_visit(user, %{requested_date: ~D[2022-06-01], minutes: 30})
@@ -22,8 +21,7 @@ defmodule Papatron3000.VisitsTest do
     end
 
     test "fails when member doesn't have enough balance for the requested amount of time" do
-      {:ok, user} = user_fixture(%{balance: 20})
-      Users.add_role(user, :member)
+      {:ok, user} = member_user_fixture(%{balance: 20})
 
       assert {:error, "Insufficient balance"} = Visits.request_visit(user, %{requested_date: ~D[2022-12-01], minutes: 30})
     end
@@ -32,20 +30,15 @@ defmodule Papatron3000.VisitsTest do
   describe "listing potential upcoming visits for a pal" do
     test "users without the pal role cannot list upcoming visits" do
       {:ok, user} = user_fixture()
-      {:ok, member} = user_fixture()
-      Users.add_role(member, :member)
+      {:ok, member} = member_user_fixture()
       {:ok, _visit} = Visits.request_visit(member, %{requested_date: ~D[2022-12-01], minutes: 30})
 
       assert {:error, "Not a pal"} = Visits.get_potential_visits_for_pal(user)
     end
 
     test "pals can view upcoming visits" do
-      {:ok, pal} = user_fixture()
-      Users.add_role(pal, :pal)
-
-      {:ok, member} = user_fixture()
-      Users.add_role(member, :member)
-
+      {:ok, pal} = pal_user_fixture()
+      {:ok, member} = member_user_fixture()
       {:ok, visit} = Visits.request_visit(member, %{requested_date: ~D[2022-12-01], minutes: 30})
 
       visit_ids =
@@ -66,10 +59,8 @@ defmodule Papatron3000.VisitsTest do
     end
 
     test "unfulfilled visits in the past will not be shown in the list" do
-      {:ok, member} = user_fixture()
-      Users.add_role(member, :member)
-      {:ok, pal} = user_fixture()
-      Users.add_role(pal, :pal)
+      {:ok, member} = member_user_fixture()
+      {:ok, pal} = pal_user_fixture()
 
       {:ok, _visit} = Visits.request_visit(member, %{requested_date: ~D[2020-12-01], minutes: 30})
 
@@ -77,10 +68,8 @@ defmodule Papatron3000.VisitsTest do
     end
 
     test "performing a visit will create a transaction and alter member's and pal's balances" do
-      {:ok, member} = user_fixture()
-      Users.add_role(member, :member)
-      {:ok, pal} = user_fixture()
-      Users.add_role(pal, :pal)
+      {:ok, member} = member_user_fixture()
+      {:ok, pal} = pal_user_fixture()
 
       {:ok, visit} = Visits.request_visit(member, %{requested_date: ~D[2022-12-01], minutes: 30})
       visit = visit |> Repo.preload(:user)
