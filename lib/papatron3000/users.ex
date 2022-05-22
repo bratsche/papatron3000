@@ -1,7 +1,7 @@
 defmodule Papatron3000.Users do
   import Ecto.Query, warn: false
   alias Papatron3000.Repo
-  alias Papatron3000.Users.{Role, User}
+  alias Papatron3000.Users.{Role, Session, User}
 
   @doc """
   Find a user by the given email address.
@@ -17,6 +17,33 @@ defmodule Papatron3000.Users do
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Create a session for the given user.
+  """
+  def create_session(%User{} = user) do
+    %Session{}
+    |> Session.changeset(%{user_id: user.id})
+    |> Repo.insert()
+  end
+
+  @doc """
+  Gets the current user, if there is an active session.
+  """
+  def current_user() do
+    from(
+      u in User,
+      join: s in Session, on: s.user_id == u.id
+    )
+    |> Repo.one()
+  end
+
+  @doc """
+  Removes the session.
+  """
+  def destroy_session(%Session{} = session) do
+    Repo.delete(session)
   end
 
   def has_role?(%User{} = user, role_type) do
