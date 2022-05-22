@@ -5,3 +5,5 @@ config :papatron3000, Papatron3000.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost"
+
+config :logger, level: :warn
