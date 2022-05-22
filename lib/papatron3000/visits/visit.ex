@@ -7,7 +7,8 @@ defmodule Papatron3000.Visits.Visit do
     field :minutes, :integer
     field :tasks, {:array, :string}, default: []
 
-    belongs_to :user, Papatron3000.Users.User
+    belongs_to :user,        Papatron3000.Users.User
+    has_one    :transaction, Papatron3000.Visits.Transaction
 
     timestamps()
   end

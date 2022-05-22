@@ -65,8 +65,31 @@ defmodule Papatron3000.VisitsTest do
       assert Visits.get_potential_visits_for_pal(user) == []
     end
 
+    test "fulfilled visits will not be shown in the list" do
+      # TODO
+    end
+
     test "unfulfilled visits in the past will not be shown in the list" do
       # TODO
     end
+
+    test "performing a visit will create a transaction and alter member's and pal's balances" do
+      {:ok, member} = user_fixture()
+      Users.add_role(member, :member)
+      {:ok, pal} = user_fixture()
+      Users.add_role(pal, :pal)
+
+      {:ok, visit} = Visits.request_visit(member, %{requested_date: ~D[2022-12-01], minutes: 30})
+      visit = visit |> Repo.preload(:user)
+
+      {:ok, %{member: member, pal: pal, transaction: transaction}} = Visits.perform_visit(pal, visit)
+      assert transaction != nil
+      assert member.balance == 30
+      assert pal.balance == 85
+    end
+  end
+
+  test "performing a visit should not succeed if the member has insufficient balance" do
+    # TODO
   end
 end

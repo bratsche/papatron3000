@@ -1,9 +1,10 @@
 defmodule Papatron3000.Visits do
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Papatron3000.Repo
   alias Papatron3000.Users
   alias Papatron3000.Users.User
-  alias Papatron3000.Visits.Visit
+  alias Papatron3000.Visits.{Transaction, Visit}
 
   @doc """
   This is used to create visit requests for members. Users must have
@@ -47,6 +48,29 @@ defmodule Papatron3000.Visits do
           where: v.requested_date >= ^today
         )
         |> Repo.all()
+
+      false ->
+        {:error, "Not a pal"}
+    end
+  end
+
+  @doc """
+  When a pal performs a visit, we create a transaction log for the visit.
+  We also transfer the minutes of the member's balance over to the pal's
+  balance, minus 15% (rounding down--we don't store fractions of minutes).
+  """
+  def perform_visit(%User{} = pal, %Visit{minutes: minutes} = visit) do
+    case Users.has_role?(pal, :pal) do
+      true ->
+        transaction_changeset =
+          Ecto.build_assoc(visit, :transaction)
+          |> Transaction.changeset(%{member_id: visit.user_id, pal_id: pal.id})
+
+        Multi.new()
+        |> Multi.insert(:transaction, transaction_changeset)
+        |> Multi.update(:member, User.changeset(visit.user, %{balance: visit.user.balance - minutes}))
+        |> Multi.update(:pal, User.changeset(pal, %{balance: pal.balance + trunc(minutes * 0.85)}))
+        |> Repo.transaction()
 
       false ->
         {:error, "Not a pal"}
