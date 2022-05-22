@@ -92,6 +92,14 @@ defmodule Papatron3000.VisitsTest do
   end
 
   test "performing a visit should not succeed if the member has insufficient balance" do
-    # TODO
+    {:ok, member} = member_user_fixture()
+    {:ok, pal} = pal_user_fixture()
+
+    {:ok, %Visit{} = visit1} = Visits.request_visit(member, %{requested_date: ~D[2022-12-01], minutes: 45})
+    {:ok, %Visit{} = visit2} = Visits.request_visit(member, %{requested_date: ~D[2022-12-01], minutes: 45})
+
+    assert {:ok, %{member: _member, pal: pal, transaction: _transaction}} = Visits.perform_visit(pal, visit1)
+
+    assert {:error, "Insufficient balance"} = Visits.perform_visit(pal, visit2)
   end
 end

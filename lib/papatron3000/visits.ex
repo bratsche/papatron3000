@@ -75,20 +75,46 @@ defmodule Papatron3000.Visits do
   balance, minus 15% (rounding down--we don't store fractions of minutes).
   """
   def perform_visit(%User{} = pal, %Visit{minutes: minutes} = visit) do
-    case Users.has_role?(pal, :pal) do
-      true ->
-        transaction_changeset =
-          Ecto.build_assoc(visit, :transaction)
-          |> Transaction.changeset(%{member_id: visit.user_id, pal_id: pal.id})
+    # It's important that we load the member fresh here rather than using
+    # a preload, to ensure that their `balance` is the latest value.
+    member = get_member_from_visit(visit)
 
-        Multi.new()
-        |> Multi.insert(:transaction, transaction_changeset)
-        |> Multi.update(:member, User.changeset(visit.user, %{balance: visit.user.balance - minutes}))
-        |> Multi.update(:pal, User.changeset(pal, %{balance: pal.balance + trunc(minutes * 0.85)}))
-        |> Repo.transaction()
-
-      false ->
+    cond do
+      !Users.has_role?(pal, :pal) ->
         {:error, "Not a pal"}
+
+      member.balance < minutes ->
+        {:error, "Insufficient balance"}
+
+      true ->
+        do_perform_visit(pal, visit)
     end
+  end
+
+  defp get_member_from_visit(%Visit{} = visit) do
+    from(
+      u in User,
+      where: u.id == ^visit.user_id
+    )
+    |> Repo.one()
+  end
+
+  defp do_perform_visit(pal, %Visit{minutes: minutes} = visit) do
+    transaction_changeset =
+      Ecto.build_assoc(visit, :transaction)
+      |> Transaction.changeset(%{member_id: visit.user_id, pal_id: pal.id})
+
+    user =
+      from(
+        u in User,
+        where: u.id == ^visit.user_id
+      )
+      |> Repo.one()
+
+    Multi.new()
+    |> Multi.insert(:transaction, transaction_changeset)
+    |> Multi.update(:member, User.changeset(user, %{balance: user.balance - minutes}))
+    |> Multi.update(:pal, User.changeset(pal, %{balance: pal.balance + trunc(minutes * 0.85)}))
+    |> Repo.transaction()
   end
 end
