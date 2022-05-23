@@ -2,7 +2,7 @@ defmodule Papatron3000.CLI.User do
   alias Papatron3000.Users
   alias Papatron3000.Users.User
 
-  def dispatch_command(["create" | _options], switches) do
+  def dispatch_command(["create"], switches) do
     switches
     |> OptionParser.parse(strict: [email: :string, first_name: :string, last_name: :string])
     |> then(fn {_, options, _} -> options end)

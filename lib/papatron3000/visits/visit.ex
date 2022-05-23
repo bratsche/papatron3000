@@ -7,6 +7,8 @@ defmodule Papatron3000.Visits.Visit do
     field :minutes, :integer
     field :tasks, {:array, :string}, default: []
 
+    field :date, :string, virtual: true
+
     belongs_to :user,        Papatron3000.Users.User
     has_one    :transaction, Papatron3000.Visits.Transaction
 
@@ -16,7 +18,16 @@ defmodule Papatron3000.Visits.Visit do
   @doc false
   def changeset(visit, attrs) do
     visit
-    |> cast(attrs, [:requested_date, :minutes, :tasks])
+    |> cast(attrs, [:date, :requested_date, :minutes, :tasks])
+    |> handle_date_alias()
     |> validate_required([:requested_date, :minutes, :user_id])
+  end
+
+  defp handle_date_alias(changeset) do
+    date = get_field(changeset, :date)
+    |> Date.from_iso8601!()
+
+    changeset
+    |> put_change(:requested_date, date)
   end
 end
