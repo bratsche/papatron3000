@@ -23,9 +23,24 @@ defmodule Papatron3000.Users do
   Create a session for the given user.
   """
   def create_session(%User{} = user) do
-    %Session{}
-    |> Session.changeset(%{user_id: user.id})
-    |> Repo.insert()
+    session =
+      %Session{}
+      |> Session.changeset(%{user_id: user.id})
+      |> Repo.insert()
+
+    {:ok, session}
+  end
+
+  def create_session(nil) do
+    {:error, "No such user"}
+  end
+
+  @doc """
+  Get session.
+  """
+  def current_session() do
+    from(s in Session)
+    |> Repo.one()
   end
 
   @doc """
@@ -45,6 +60,8 @@ defmodule Papatron3000.Users do
   def destroy_session(%Session{} = session) do
     Repo.delete(session)
   end
+
+  def destroy_session(nil), do: nil
 
   def has_role?(%User{} = user, role_type) do
     from(

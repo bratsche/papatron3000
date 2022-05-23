@@ -8,6 +8,7 @@ defmodule Papatron3000.MixProject do
       elixir: "~> 1.13",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
+      escript: [main_module: Papatron3000.CLI],
       deps: deps()
     ]
   end
