@@ -44,7 +44,9 @@ defmodule Papatron3000.CLI.Visit do
   end
 
   defp request(options) do
-    with {:ok, user} <- Users.current_user() do
+    with {:ok, user} <- Users.current_user(),
+         {:ok, user} <- Users.with_role(user, :member)
+    do
       request_params =
         Enum.into(options, %{})
 
@@ -65,6 +67,7 @@ defmodule Papatron3000.CLI.Visit do
 
   defp fulfill([id: id]) do
     with {:ok, user} <- Users.current_user(),
+         {:ok, user} <- Users.with_role(user, :pal),
          {:ok, visit} <- Visits.get_visit(id)
     do
       Visits.fulfill_visit(user, visit)
@@ -75,6 +78,9 @@ defmodule Papatron3000.CLI.Visit do
         {:error, error} ->
           IO.puts "Error: #{error}"
       end
+    else
+      {:error, error} ->
+        IO.puts "Error: #{error}"
     end
   end
 

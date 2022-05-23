@@ -92,4 +92,15 @@ defmodule Papatron3000.Users do
       |> Repo.insert()
     end
   end
+
+  @doc """
+  Utility for returning a user with the specified role.
+  """
+  def with_role(%User{} = user, role_type) do
+    if has_role?(user, role_type) do
+      {:ok, user}
+    else
+      {:error, "User is missing '#{role_type}' role."}
+    end
+  end
 end
