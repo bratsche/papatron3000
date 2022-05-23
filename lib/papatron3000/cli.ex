@@ -14,6 +14,10 @@ defmodule Papatron3000.CLI do
     Papatron3000.CLI.User.dispatch_command(options, switches)
   end
 
+  defp handle_options({["role" | options], switches}) do
+    Papatron3000.CLI.Role.dispatch_command(options, switches)
+  end
+
   defp handle_options({["visit" | options], switches}) do
     Papatron3000.CLI.Visit.dispatch_command(options, switches)
   end
