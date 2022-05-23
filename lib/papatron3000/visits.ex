@@ -75,11 +75,11 @@ defmodule Papatron3000.Visits do
   end
 
   @doc """
-  When a pal performs a visit, we create a transaction log for the visit.
+  When a pal fulfill a visit, we create a transaction log for the visit.
   We also transfer the minutes of the member's balance over to the pal's
   balance, minus 15% (rounding down--we don't store fractions of minutes).
   """
-  def perform_visit(%User{} = pal, %Visit{minutes: minutes} = visit) do
+  def fulfill_visit(%User{} = pal, %Visit{minutes: minutes} = visit) do
     # It's important that we load the member fresh here rather than using
     # a preload, to ensure that their `balance` is the latest value.
     member = get_member_from_visit(visit)
@@ -95,7 +95,7 @@ defmodule Papatron3000.Visits do
         {:error, "Insufficient balance"}
 
       true ->
-        do_perform_visit(pal, visit)
+        do_fulfill_visit(pal, visit)
     end
   end
 
@@ -107,7 +107,7 @@ defmodule Papatron3000.Visits do
     |> Repo.one()
   end
 
-  defp do_perform_visit(pal, %Visit{minutes: minutes} = visit) do
+  defp do_fulfill_visit(pal, %Visit{minutes: minutes} = visit) do
     transaction_changeset =
       Ecto.build_assoc(visit, :transaction)
       |> Transaction.changeset(%{member_id: visit.user_id, pal_id: pal.id})

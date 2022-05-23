@@ -67,7 +67,7 @@ defmodule Papatron3000.CLI.Visit do
     visit = Visits.get_visit(id)
     user = Users.current_user()
 
-    Visits.perform_visit(user, visit)
+    Visits.fulfill_visit(user, visit)
     |> case do
       {:ok, _} ->
         IO.puts "Visit has been fulfilled. Your balance has been updated."
