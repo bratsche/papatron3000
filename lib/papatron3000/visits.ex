@@ -10,7 +10,13 @@ defmodule Papatron3000.Visits do
   Get a visit by its ID.
   """
   def get_visit(id) do
-    Repo.get!(Visit, id)
+    case Repo.get!(Visit, id) do
+      nil ->
+        {:error, "Visit not found."}
+
+      visit ->
+        {:ok, visit}
+    end
   end
 
   @doc """
