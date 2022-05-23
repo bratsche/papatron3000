@@ -1,7 +1,7 @@
 defmodule Papatron3000.CLI do
   def main(args) do
     args
-    |> OptionParser.parse(strict: [user: :string, visit: :string, help: :string, email: :string, first_name: :string, last_name: :string, date: :string, minutes: :integer])
+    |> OptionParser.parse(strict: [user: :string, visit: :string, help: :string, email: :string, first_name: :string, last_name: :string, date: :string, minutes: :integer, id: :integer])
     |> then(fn {switches, commands, _} -> {commands, switches} end)
     |> handle_options()
   end

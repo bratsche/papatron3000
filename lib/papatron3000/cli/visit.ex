@@ -3,7 +3,7 @@ defmodule Papatron3000.CLI.Visit do
 
   def dispatch_command(["request"], switches) do
     switches
-    |> OptionParser.parse(strict: [date: :string, minutes: :integer, task: :string])
+    |> OptionParser.parse(strict: [date: :string, minutes: :integer, task: :string, id: :integer])
     |> then(fn {_, options, _} -> options end)
     |> request()
   end
@@ -17,14 +17,27 @@ defmodule Papatron3000.CLI.Visit do
 
       true ->
         Visits.get_potential_visits_for_pal(user)
-        |> Enum.each(fn x ->
-          IO.puts """
-
-          --> ID: #{x.id}, Date: #{Date.to_string(x.requested_date)}, Minutes: #{x.minutes}
-
-          """
-        end)
+        |> print_listing()
     end
+  end
+
+  def dispatch_command(["fulfill"], switches) do
+    fulfill(switches)
+  end
+
+  defp print_listing([]) do
+    IO.puts "There are no visits you can fulfill at this time."
+  end
+
+  defp print_listing(visits) do
+    visits
+    |> Enum.each(fn x ->
+      IO.puts """
+
+      --> ID: #{x.id}, Date: #{Date.to_string(x.requested_date)}, Minutes: #{x.minutes}
+
+      """
+    end)
   end
 
   defp request(options) do
@@ -48,5 +61,23 @@ defmodule Papatron3000.CLI.Visit do
             IO.puts "Please specify a date with '--date' and minutes with '--minutes'."
         end
     end
+  end
+
+  defp fulfill([id: id]) do
+    visit = Visits.get_visit(id)
+    user = Users.current_user()
+
+    Visits.perform_visit(user, visit)
+    |> case do
+      {:ok, _} ->
+        IO.puts "Visit has been fulfilled. Your balance has been updated."
+
+      {:error, error} ->
+        IO.puts "Error: #{error}"
+    end
+  end
+
+  defp fulfill(_) do
+    IO.puts "You must specify the id of the visit."
   end
 end

@@ -24,6 +24,7 @@ defmodule Papatron3000.CLI.Help do
     SUB-COMMANDS
       request     Requests a new visit for a member
       list        Lists potential visits a pal can fulfill
+      fulfill     Fulfills the specified visit.
     """
   end
 

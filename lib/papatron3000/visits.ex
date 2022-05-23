@@ -7,6 +7,11 @@ defmodule Papatron3000.Visits do
   alias Papatron3000.Visits.{Transaction, Visit}
 
   @doc """
+  Get a visit by its ID.
+  """
+  def get_visit(id), do: Repo.get!(Visit, id)
+
+  @doc """
   This is used to create visit requests for members. Users must have
   the `:member` role in order to request visits, and their account balance
   must be equal or greater than the number of minutes they are requesting
@@ -82,6 +87,9 @@ defmodule Papatron3000.Visits do
     cond do
       !Users.has_role?(pal, :pal) ->
         {:error, "Not a pal"}
+
+        is_fulfilled?(visit) ->
+          {:error, "This visit has already been fulfilled."}
 
       member.balance < minutes ->
         {:error, "Insufficient balance"}
