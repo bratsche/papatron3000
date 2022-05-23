@@ -27,6 +27,12 @@ defmodule Papatron3000.CLI.Help do
     """
   end
 
+  def print_help([unknown_subcommand]) do
+    IO.puts """
+    Unknown sub-command '#{unknown_subcommand}' to get help with.
+    """
+  end
+
   def print_help([]) do
     IO.puts """
     papatron3000
