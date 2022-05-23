@@ -24,10 +24,13 @@ defmodule Papatron3000.Visits.Visit do
   end
 
   defp handle_date_alias(changeset) do
-    date = get_field(changeset, :date)
-    |> Date.from_iso8601!()
+    case get_field(changeset, :date) do
+      nil ->
+        changeset
 
-    changeset
-    |> put_change(:requested_date, date)
+      date ->
+        changeset
+        |> put_change(:requested_date, Date.from_iso8601!(date))
+    end
   end
 end
