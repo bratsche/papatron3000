@@ -52,7 +52,7 @@ defmodule Papatron3000.CLI.User do
     |> Users.create_user()
     |> case do
       {:ok, %User{email: email}} ->
-        IO.puts "User successfully created! Use 'papatron3000 user login #{email}' to login with this user."
+        IO.puts "User successfully created! Use 'papatron3000 user login --email #{email}' to login with this user."
 
       {:error, changeset} ->
         IO.puts "User creation failed!"
