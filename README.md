@@ -14,6 +14,7 @@ run the test suite using `mix test`.
 
 ## Example
 
+```
 > ./papatron3000 user create --email primrose@somewhere.com --first-name William --last-name Primrose
 User successfully created! Use 'papatron3000 user login --email primrose@somewhere.com' to login with this user.
 
@@ -67,3 +68,4 @@ CURRENT USER:
   William Primrose
   Email: primrose@somewhere.com
   Balance: 30
+```
