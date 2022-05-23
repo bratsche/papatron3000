@@ -52,6 +52,13 @@ defmodule Papatron3000.Users do
       join: s in Session, on: s.user_id == u.id
     )
     |> Repo.one()
+    |> case do
+      nil ->
+        {:error, "No user found."}
+
+      user ->
+        {:ok, user}
+    end
   end
 
   @doc """

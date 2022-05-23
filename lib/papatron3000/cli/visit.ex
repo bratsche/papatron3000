@@ -9,15 +9,18 @@ defmodule Papatron3000.CLI.Visit do
   end
 
   def dispatch_command(["list"], _switches) do
-    user = Users.current_user()
+    with {:ok, user} <- Users.current_user() do
+      case Users.has_role?(user, :pal) do
+        false ->
+          IO.puts "You are not a pal."
 
-    case Users.has_role?(user, :pal) do
-      false ->
-        IO.puts "You are not a pal."
-
-      true ->
-        Visits.get_potential_visits_for_pal(user)
-        |> print_listing()
+        true ->
+          Visits.get_potential_visits_for_pal(user)
+          |> print_listing()
+      end
+    else
+      {:error, error} ->
+        IO.puts "Error: #{error}"
     end
   end
 
@@ -41,39 +44,37 @@ defmodule Papatron3000.CLI.Visit do
   end
 
   defp request(options) do
-    user = Users.current_user()
+    with {:ok, user} <- Users.current_user() do
+      request_params =
+        Enum.into(options, %{})
 
-    case user do
-      nil ->
-        IO.puts "You are not logged in."
+      Visits.request_visit(user, request_params)
+      |> case do
+        {:ok, _} ->
+          IO.puts "Visit requested."
 
-      user ->
-        request_params =
-          Enum.into(options, %{})
-
-        Visits.request_visit(user, request_params)
-        |> case do
-          {:ok, _} ->
-            IO.puts "Visit requested."
-
-          {:error, _} ->
-            IO.puts "Failed to request visit."
-            IO.puts "Please specify a date with '--date' and minutes with '--minutes'."
-        end
+        {:error, _} ->
+          IO.puts "Failed to request visit."
+          IO.puts "Please specify a date with '--date' and minutes with '--minutes'."
+      end
+    else
+      {:error, error} ->
+        IO.puts "Error: #{error}"
     end
   end
 
   defp fulfill([id: id]) do
-    visit = Visits.get_visit(id)
-    user = Users.current_user()
+    with {:ok, user} <- Users.current_user(),
+         {:ok, visit} <- Visits.get_visit(id)
+    do
+      Visits.fulfill_visit(user, visit)
+      |> case do
+        {:ok, _} ->
+          IO.puts "Visit has been fulfilled. Your balance has been updated."
 
-    Visits.fulfill_visit(user, visit)
-    |> case do
-      {:ok, _} ->
-        IO.puts "Visit has been fulfilled. Your balance has been updated."
-
-      {:error, error} ->
-        IO.puts "Error: #{error}"
+        {:error, error} ->
+          IO.puts "Error: #{error}"
+      end
     end
   end
 

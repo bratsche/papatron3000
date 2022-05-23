@@ -9,7 +9,9 @@ defmodule Papatron3000.Visits do
   @doc """
   Get a visit by its ID.
   """
-  def get_visit(id), do: Repo.get!(Visit, id)
+  def get_visit(id) do
+    Repo.get!(Visit, id)
+  end
 
   @doc """
   This is used to create visit requests for members. Users must have

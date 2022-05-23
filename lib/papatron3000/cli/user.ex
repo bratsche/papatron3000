@@ -10,19 +10,20 @@ defmodule Papatron3000.CLI.User do
   end
 
   def dispatch_command(["whoami"], _switches) do
-    case Users.current_user() do
-      nil ->
+    with {:ok, user} <- Users.current_user() do
+      IO.puts """
+      CURRENT USER:
+        #{user.first_name} #{user.last_name}
+        Email: #{user.email}
+        Balance: #{user.balance}
+
+      """
+
+    else
+      _ ->
         IO.puts """
         There is no active session. Use "papatron3000 user login" to create
         a session or use "papatron3000 user create" to first create a user.
-
-        """
-
-      user ->
-        IO.puts """
-        CURRENT USER:
-          #{user.first_name} #{user.last_name}
-          #{user.email}
 
         """
     end

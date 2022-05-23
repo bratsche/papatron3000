@@ -11,21 +11,18 @@ defmodule Papatron3000.CLI.Role do
   end
 
   defp add([role]) when role in ["member", "pal"] do
-    user = Users.current_user()
+    with {:ok, user} <- Users.current_user() do
+      Users.add_role(user, role)
+      |> case do
+        {:ok, _} ->
+          IO.puts "Role added."
 
-    case user do
-      nil ->
-        IO.puts "You are not logged in."
-
-      user ->
-        Users.add_role(user, role)
-        |> case do
-          {:ok, _} ->
-            IO.puts "Role added."
-
-          {:error, error} ->
-            IO.puts(error)
-        end
+        {:error, error} ->
+          IO.puts(error)
+      end
+    else
+      {:error, error} ->
+        IO.puts "Error: #{error}"
     end
   end
 
